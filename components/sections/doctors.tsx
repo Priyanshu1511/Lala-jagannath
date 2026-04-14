@@ -21,7 +21,7 @@ const doctors = [
   {
     id: "male",
     name: { en: "Dr. Jitendra Kumar Sharma", hi: "डॉ. जितेंद्र कुमार शर्मा" },
-    image: "https://raw.githubusercontent.com/Priyanshu1511/Lala-jagannath/refs/heads/main/pic/DrJitendraSharma.jpg",
+    image: "https://raw.githubusercontent.com/Priyanshu1511/Lala-jagannath/refs/heads/main/pic/DrJkSharma.jpg",
     description: {
       en: "Expert in naturopathy, yoga therapy, and chronic disease treatment",
       hi: "प्राकृतिक चिकित्सा, योग चिकित्सा और दीर्घकालिक रोगों के विशेषज्ञ",

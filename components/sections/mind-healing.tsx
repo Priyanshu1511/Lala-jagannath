@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { Play, Pause, RotateCcw, CheckCircle } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Play, Pause, RotateCcw, CheckCircle, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
 type BreathingPhase = "inhale" | "hold" | "exhale" | "idle"
+
+const AUDIO_URL = "https://drive.google.com/uc?export=download&id=1tXdBULB1a1F-MV2tDWGOMrc8HS_sOYxZ"
 
 export function MindHealingSection() {
   const { t } = useI18n()
@@ -33,10 +35,13 @@ export function MindHealingSection() {
 }
 
 function ChakraActivation() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [isActive, setIsActive] = useState(false)
   const [phase, setPhase] = useState<BreathingPhase>("idle")
   const [cycleCount, setCycleCount] = useState(0)
+  const [isSoundOn, setIsSoundOn] = useState(true)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const timeoutRefs = useRef<NodeJS.Timeout[]>([])
 
   const phaseDurations = {
     inhale: 4000,
@@ -44,9 +49,43 @@ function ChakraActivation() {
     exhale: 6000,
   }
 
+  // Initialize audio
+  useEffect(() => {
+    audioRef.current = new Audio(AUDIO_URL)
+    audioRef.current.loop = true
+    audioRef.current.preload = "auto"
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = ""
+        audioRef.current = null
+      }
+      // Clear all timeouts
+      timeoutRefs.current.forEach(clearTimeout)
+    }
+  }, [])
+
+  // Control audio
+  useEffect(() => {
+    if (!audioRef.current) return
+
+    if (isActive && isSoundOn) {
+      audioRef.current.play().catch((err) => {
+        console.log("[v0] Audio play error:", err)
+      })
+    } else {
+      audioRef.current.pause()
+    }
+  }, [isActive, isSoundOn])
+
+  // Breathing cycle
   useEffect(() => {
     if (!isActive) {
       setPhase("idle")
+      // Clear existing timeouts
+      timeoutRefs.current.forEach(clearTimeout)
+      timeoutRefs.current = []
       return
     }
 
@@ -64,16 +103,21 @@ function ChakraActivation() {
             runCycle()
           }, phaseDurations.exhale)
           
-          return () => clearTimeout(exhaleTimeout)
+          timeoutRefs.current.push(exhaleTimeout)
         }, phaseDurations.hold)
         
-        return () => clearTimeout(holdTimeout)
+        timeoutRefs.current.push(holdTimeout)
       }, phaseDurations.inhale)
       
-      return () => clearTimeout(inhaleTimeout)
+      timeoutRefs.current.push(inhaleTimeout)
     }
 
     runCycle()
+
+    return () => {
+      timeoutRefs.current.forEach(clearTimeout)
+      timeoutRefs.current = []
+    }
   }, [isActive])
 
   const handleStart = () => {
@@ -84,6 +128,10 @@ function ChakraActivation() {
   const handleStop = () => {
     setIsActive(false)
     setPhase("idle")
+  }
+
+  const toggleSound = () => {
+    setIsSoundOn(!isSoundOn)
   }
 
   const getCircleScale = () => {
@@ -121,6 +169,18 @@ function ChakraActivation() {
         <p className="text-muted-foreground">{t("mindHealing.chakra.description")}</p>
       </div>
 
+      {/* Rhythm Message - Only shown when active */}
+      {isActive && (
+        <div className="p-4 mb-6 bg-primary/10 border border-primary/30 rounded-xl text-center">
+          <p className="text-sm font-medium text-primary">
+            {locale === "hi" 
+              ? "ताल के साथ चलें। श्वास लें... रोकें... छोड़ें।"
+              : "Follow the rhythm. Breathe in... hold... release."
+            }
+          </p>
+        </div>
+      )}
+
       {/* Breathing Circle */}
       <div className="relative w-64 h-64 mx-auto mb-8">
         {/* Outer Glow */}
@@ -145,7 +205,9 @@ function ChakraActivation() {
           <div className="text-center text-primary-foreground">
             <p className="font-serif text-xl font-semibold">{getPhaseText()}</p>
             {isActive && (
-              <p className="text-sm opacity-80 mt-1">Cycle {cycleCount + 1}</p>
+              <p className="text-sm opacity-80 mt-1">
+                {locale === "hi" ? `चक्र ${cycleCount + 1}` : `Cycle ${cycleCount + 1}`}
+              </p>
             )}
           </div>
         </div>
@@ -175,7 +237,7 @@ function ChakraActivation() {
       </p>
 
       {/* Controls */}
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-4">
         {!isActive ? (
           <Button onClick={handleStart} size="lg">
             <Play className="w-5 h-5 mr-2" />
@@ -187,16 +249,36 @@ function ChakraActivation() {
             {t("mindHealing.chakra.stop")}
           </Button>
         )}
+
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={toggleSound}
+        >
+          {isSoundOn ? (
+            <>
+              <Volume2 className="w-5 h-5 mr-2" />
+              {locale === "hi" ? "ध्वनि चालू" : "Sound ON"}
+            </>
+          ) : (
+            <>
+              <VolumeX className="w-5 h-5 mr-2" />
+              {locale === "hi" ? "ध्वनि बंद" : "Sound OFF"}
+            </>
+          )}
+        </Button>
       </div>
     </div>
   )
 }
 
 function AngerManagement() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [isActive, setIsActive] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
+  const [isSoundOn, setIsSoundOn] = useState(true)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const steps = [
     t("mindHealing.anger.step1"),
@@ -204,6 +286,34 @@ function AngerManagement() {
     t("mindHealing.anger.step3"),
     t("mindHealing.anger.step4"),
   ]
+
+  // Initialize audio
+  useEffect(() => {
+    audioRef.current = new Audio(AUDIO_URL)
+    audioRef.current.loop = true
+    audioRef.current.preload = "auto"
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = ""
+        audioRef.current = null
+      }
+    }
+  }, [])
+
+  // Control audio
+  useEffect(() => {
+    if (!audioRef.current) return
+
+    if (isActive && isSoundOn && !isComplete) {
+      audioRef.current.play().catch((err) => {
+        console.log("[v0] Audio play error:", err)
+      })
+    } else {
+      audioRef.current.pause()
+    }
+  }, [isActive, isSoundOn, isComplete])
 
   useEffect(() => {
     if (!isActive || isComplete) return
@@ -232,6 +342,10 @@ function AngerManagement() {
     setIsComplete(false)
   }
 
+  const toggleSound = () => {
+    setIsSoundOn(!isSoundOn)
+  }
+
   return (
     <div className="bg-card rounded-3xl border border-border p-8 shadow-lg">
       <div className="text-center mb-8">
@@ -240,6 +354,18 @@ function AngerManagement() {
         </h3>
         <p className="text-muted-foreground">{t("mindHealing.anger.description")}</p>
       </div>
+
+      {/* Rhythm Message - Only shown when active */}
+      {isActive && !isComplete && (
+        <div className="p-4 mb-6 bg-primary/10 border border-primary/30 rounded-xl text-center animate-pulse">
+          <p className="text-sm font-medium text-primary">
+            {locale === "hi" 
+              ? "ताल के साथ चलें। श्वास लें... रोकें... छोड़ें।"
+              : "Follow the rhythm. Breathe in... hold... release."
+            }
+          </p>
+        </div>
+      )}
 
       {/* Progress Steps */}
       <div className="space-y-4 mb-8">
@@ -293,7 +419,7 @@ function AngerManagement() {
       </p>
 
       {/* Controls */}
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-4">
         {!isActive ? (
           <Button onClick={handleStart} size="lg">
             <Play className="w-5 h-5 mr-2" />
@@ -302,9 +428,27 @@ function AngerManagement() {
         ) : (
           <Button onClick={handleReset} variant="outline" size="lg">
             <RotateCcw className="w-5 h-5 mr-2" />
-            Reset
+            {locale === "hi" ? "पुनः आरंभ करें" : "Reset"}
           </Button>
         )}
+
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={toggleSound}
+        >
+          {isSoundOn ? (
+            <>
+              <Volume2 className="w-5 h-5 mr-2" />
+              {locale === "hi" ? "ध्वनि चालू" : "Sound ON"}
+            </>
+          ) : (
+            <>
+              <VolumeX className="w-5 h-5 mr-2" />
+              {locale === "hi" ? "ध्वनि बंद" : "Sound OFF"}
+            </>
+          )}
+        </Button>
       </div>
     </div>
   )

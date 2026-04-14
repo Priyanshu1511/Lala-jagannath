@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Play, Volume2, VolumeX, ArrowRight, CheckCircle, Wind, Brain, Sparkles } from "lucide-react"
+import { Play, Volume2, VolumeX, ArrowRight, CheckCircle, Wind, Brain, Sparkles, Pause } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
+
+const AUDIO_URL = "https://drive.google.com/uc?export=download&id=1tXdBULB1a1F-MV2tDWGOMrc8HS_sOYxZ"
 
 export function VirtualHavanSection() {
   const { t } = useI18n()
@@ -68,10 +70,11 @@ function BenefitCard({
 }
 
 function GuidedHavan() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [isActive, setIsActive] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
-  const [isSoundOn, setIsSoundOn] = useState(false)
+  const [isSoundOn, setIsSoundOn] = useState(true)
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const steps = [
@@ -81,32 +84,50 @@ function GuidedHavan() {
     t("havan.guided.step4"),
   ]
 
+  // Initialize audio element
   useEffect(() => {
-    // Create audio element for Om chanting
-    audioRef.current = new Audio()
+    audioRef.current = new Audio(AUDIO_URL)
     audioRef.current.loop = true
+    audioRef.current.preload = "auto"
+    
+    audioRef.current.addEventListener("canplaythrough", () => {
+      setIsAudioLoaded(true)
+    })
+
+    audioRef.current.addEventListener("error", (e) => {
+      console.log("[v0] Audio load error:", e)
+      setIsAudioLoaded(true) // Allow experience even if audio fails
+    })
     
     return () => {
       if (audioRef.current) {
         audioRef.current.pause()
+        audioRef.current.src = ""
         audioRef.current = null
       }
     }
   }, [])
 
+  // Control audio based on isActive and isSoundOn
   useEffect(() => {
-    if (audioRef.current) {
-      if (isSoundOn && isActive) {
-        // Audio would play if we had the actual file
-        // audioRef.current.play()
-      } else {
-        audioRef.current.pause()
-      }
+    if (!audioRef.current) return
+
+    if (isActive && isSoundOn) {
+      audioRef.current.play().catch((err) => {
+        console.log("[v0] Audio play error:", err)
+      })
+    } else {
+      audioRef.current.pause()
     }
-  }, [isSoundOn, isActive])
+  }, [isActive, isSoundOn])
 
   const handleStart = () => {
     setIsActive(true)
+    setCurrentStep(0)
+  }
+
+  const handleStop = () => {
+    setIsActive(false)
     setCurrentStep(0)
   }
 
@@ -114,10 +135,14 @@ function GuidedHavan() {
     if (currentStep < steps.length - 1) {
       setCurrentStep((prev) => prev + 1)
     } else {
-      // Complete
+      // Complete - stop everything
       setIsActive(false)
       setCurrentStep(0)
     }
+  }
+
+  const toggleSound = () => {
+    setIsSoundOn(!isSoundOn)
   }
 
   const isLastStep = currentStep === steps.length - 1
@@ -255,6 +280,18 @@ function GuidedHavan() {
 
           {/* Steps */}
           <div className="space-y-6">
+            {/* Rhythm Message - Only shown when active */}
+            {isActive && (
+              <div className="p-4 bg-accent/20 border border-accent/30 rounded-xl text-center animate-pulse">
+                <p className="text-sm font-medium">
+                  {locale === "hi" 
+                    ? "मंत्र के साथ ध्यान करें... शांति... एकाग्रता..."
+                    : "Meditate with the mantra... Peace... Focus..."
+                  }
+                </p>
+              </div>
+            )}
+
             {/* Step Indicators */}
             <div className="space-y-3">
               {steps.map((step, index) => (
@@ -305,20 +342,31 @@ function GuidedHavan() {
                   {t("havan.guided.start")}
                 </Button>
               ) : (
-                <Button
-                  onClick={handleNextStep}
-                  size="lg"
-                  className="bg-accent text-foreground hover:bg-accent/90"
-                >
-                  {isLastStep ? t("havan.guided.complete") : t("havan.guided.next")}
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
+                <>
+                  <Button
+                    onClick={handleNextStep}
+                    size="lg"
+                    className="bg-accent text-foreground hover:bg-accent/90"
+                  >
+                    {isLastStep ? t("havan.guided.complete") : t("havan.guided.next")}
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                  <Button
+                    onClick={handleStop}
+                    variant="outline"
+                    size="lg"
+                    className="border-background/30 text-background hover:bg-background/10"
+                  >
+                    <Pause className="w-5 h-5 mr-2" />
+                    {locale === "hi" ? "रोकें" : "Stop"}
+                  </Button>
+                </>
               )}
 
               <Button
                 variant="outline"
                 size="lg"
-                onClick={() => setIsSoundOn(!isSoundOn)}
+                onClick={toggleSound}
                 className="border-background/30 text-background hover:bg-background/10"
               >
                 {isSoundOn ? (
