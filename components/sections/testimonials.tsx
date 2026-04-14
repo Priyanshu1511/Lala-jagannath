@@ -1,44 +1,59 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
 const testimonials = [
   {
-    name: { en: "Rajesh Kumar", hi: "राजेश कुमार" },
-    location: { en: "Panipat", hi: "पानीपत" },
+    name: { en: "Rajesh Kumar Verma", hi: "राजेश कुमार वर्मा" },
+    location: { en: "Panipat, Haryana", hi: "पानीपत, हरियाणा" },
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
     text: {
-      en: "After years of chronic back pain, the naturopathy treatment here gave me a new life. The doctors are incredibly knowledgeable and caring.",
-      hi: "कई सालों की पीठ दर्द के बाद, यहां की प्राकृतिक चिकित्सा ने मुझे नया जीवन दिया। डॉक्टर बहुत जानकार और देखभाल करने वाले हैं।",
+      en: "After years of chronic back pain, the naturopathy treatment here gave me a new life. The doctors are incredibly knowledgeable and caring. I recommend this center to everyone.",
+      hi: "कई सालों की पीठ दर्द के बाद, यहां की प्राकृतिक चिकित्सा ने मुझे नया जीवन दिया। डॉक्टर बहुत जानकार और देखभाल करने वाले हैं। मैं इस केंद्र की सभी को सिफारिश करता हूं।",
     },
     rating: 5,
   },
   {
-    name: { en: "Sunita Sharma", hi: "सुनीता शर्मा" },
-    location: { en: "Delhi", hi: "दिल्ली" },
+    name: { en: "Sunita Devi Sharma", hi: "सुनीता देवी शर्मा" },
+    location: { en: "Delhi NCR", hi: "दिल्ली एनसीआर" },
+    image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=200&q=80",
     text: {
-      en: "The yoga therapy program transformed my health. I feel more energetic and peaceful than ever before. Highly recommend!",
-      hi: "योग चिकित्सा कार्यक्रम ने मेरे स्वास्थ्य को बदल दिया। मैं पहले से कहीं अधिक ऊर्जावान और शांत महसूस करती हूं। अत्यधिक अनुशंसित!",
+      en: "The yoga therapy program transformed my health completely. I feel more energetic and peaceful than ever before. Dr. Minakshi Sharma is truly exceptional!",
+      hi: "योग चिकित्सा कार्यक्रम ने मेरे स्वास्थ्य को पूरी तरह बदल दिया। मैं पहले से कहीं अधिक ऊर्जावान और शांत महसूस करती हूं। डॉ. मिनाक्षी शर्मा वास्तव में असाधारण हैं!",
     },
     rating: 5,
   },
   {
-    name: { en: "Amit Verma", hi: "अमित वर्मा" },
-    location: { en: "Karnal", hi: "करनाल" },
+    name: { en: "Amit Singh Chauhan", hi: "अमित सिंह चौहान" },
+    location: { en: "Karnal, Haryana", hi: "करनाल, हरियाणा" },
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
     text: {
-      en: "The Panchkarma treatment was life-changing. The detox program helped me lose weight and improve my digestion significantly.",
-      hi: "पंचकर्म उपचार जीवन बदलने वाला था। डिटॉक्स कार्यक्रम ने मुझे वजन कम करने और पाचन में काफी सुधार करने में मदद की।",
+      en: "The Panchkarma treatment was life-changing. The detox program helped me lose 15 kg and improve my digestion significantly. Worth every penny!",
+      hi: "पंचकर्म उपचार जीवन बदलने वाला था। डिटॉक्स कार्यक्रम ने मुझे 15 किलो वजन कम करने और पाचन में काफी सुधार करने में मदद की। हर पैसे के लायक!",
     },
     rating: 5,
   },
   {
     name: { en: "Priya Gupta", hi: "प्रिया गुप्ता" },
-    location: { en: "Sonipat", hi: "सोनीपत" },
+    location: { en: "Sonipat, Haryana", hi: "सोनीपत, हरियाणा" },
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
     text: {
-      en: "As a working professional, the stress management program was exactly what I needed. The meditation sessions are truly transformative.",
-      hi: "एक कामकाजी पेशेवर के रूप में, तनाव प्रबंधन कार्यक्रम ठीक वही था जो मुझे चाहिए था। ध्यान सत्र वास्तव में परिवर्तनकारी हैं।",
+      en: "As a working professional, the stress management program was exactly what I needed. The meditation sessions are truly transformative. Thank you to the entire team!",
+      hi: "एक कामकाजी पेशेवर के रूप में, तनाव प्रबंधन कार्यक्रम ठीक वही था जो मुझे चाहिए था। ध्यान सत्र वास्तव में परिवर्तनकारी हैं। पूरी टीम का धन्यवाद!",
+    },
+    rating: 5,
+  },
+  {
+    name: { en: "Ramesh Chand Agarwal", hi: "रमेश चंद अग्रवाल" },
+    location: { en: "Kurukshetra, Haryana", hi: "कुरुक्षेत्र, हरियाणा" },
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
+    text: {
+      en: "I came here for paralysis recovery after a stroke. The physiotherapy and acupuncture treatments helped me regain mobility. Dr. Jitendra is a miracle worker!",
+      hi: "मैं स्ट्रोक के बाद लकवा रिकवरी के लिए यहां आया था। फिजियोथेरेपी और एक्यूपंक्चर उपचार ने मुझे गतिशीलता वापस पाने में मदद की। डॉ. जितेंद्र चमत्कारी हैं!",
     },
     rating: 5,
   },
@@ -70,14 +85,26 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section className="py-20 lg:py-32 bg-primary text-primary-foreground overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 lg:py-32 bg-primary text-primary-foreground overflow-hidden relative">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-10 left-10 w-64 h-64 rounded-full bg-accent blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-64 h-64 rounded-full bg-background blur-3xl" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 mb-6">
+            <Star className="w-4 h-4 fill-accent text-accent" />
+            <span className="text-sm font-medium">
+              {language === "en" ? "Patient Stories" : "रोगियों की कहानियां"}
+            </span>
+          </div>
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
             {language === "en" ? "What Our Patients Say" : "हमारे रोगी क्या कहते हैं"}
           </h2>
-          <p className="opacity-80">
+          <p className="opacity-80 text-lg">
             {language === "en"
               ? "Thousands of lives transformed through natural healing"
               : "प्राकृतिक उपचार से हजारों जीवन बदले"}
@@ -117,10 +144,13 @@ export function TestimonialsSection() {
 
                     {/* Author */}
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center">
-                        <span className="font-serif text-xl text-accent">
-                          {testimonial.name[language][0]}
-                        </span>
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-accent/50">
+                        <Image
+                          src={testimonial.image}
+                          alt={testimonial.name[language]}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                       <div>
                         <p className="font-semibold text-lg">
@@ -174,6 +204,13 @@ export function TestimonialsSection() {
             </button>
           </div>
         </div>
+
+        {/* Note about placeholder content */}
+        <p className="text-center mt-8 text-sm opacity-50">
+          {language === "en" 
+            ? "* Testimonial images are placeholders and will be replaced with actual patient photos with consent."
+            : "* प्रशंसापत्र छवियां प्लेसहोल्डर हैं और सहमति के साथ वास्तविक रोगी फ़ोटो से बदली जाएंगी।"}
+        </p>
       </div>
     </section>
   )

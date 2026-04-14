@@ -6,7 +6,9 @@ import { Footer } from "@/components/footer"
 import { FloatingButtons } from "@/components/floating-buttons"
 import { HeroSection } from "@/components/sections/hero"
 import { AboutSection } from "@/components/sections/about"
+import { DoctorsSection } from "@/components/sections/doctors"
 import { ServicesSection } from "@/components/sections/services"
+import { ConditionsSection } from "@/components/sections/conditions"
 import { MindHealingSection } from "@/components/sections/mind-healing"
 import { VirtualHavanSection } from "@/components/sections/virtual-havan"
 import { PhilosophySection } from "@/components/sections/philosophy"
@@ -23,7 +25,9 @@ export default function Home() {
         <main>
           <HeroSection />
           <AboutSection />
+          <DoctorsSection />
           <ServicesSection />
+          <ConditionsSection />
           <MindHealingSection />
           <VirtualHavanSection />
           <PhilosophySection />
