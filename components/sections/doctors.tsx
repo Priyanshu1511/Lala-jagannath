@@ -8,7 +8,7 @@ const doctors = [
   {
     id: "female",
     name: { en: "Dr. Minakshi Sharma", hi: "डॉ. मिनाक्षी शर्मा" },
-    image: "https://raw.githubusercontent.com/Priyanshu1511/Lala-jagannath/refs/heads/main/pic/DrMiniiSharma.jpg",
+    image: "",
     description: {
       en: "Specialist in women's wellness, naturopathy, and holistic healing",
       hi: "महिला स्वास्थ्य, प्राकृतिक चिकित्सा और समग्र उपचार विशेषज्ञ",
@@ -21,7 +21,7 @@ const doctors = [
   {
     id: "male",
     name: { en: "Dr. Jitendra Kumar Sharma", hi: "डॉ. जितेंद्र कुमार शर्मा" },
-    image: "https://raw.githubusercontent.com/Priyanshu1511/Lala-jagannath/refs/heads/main/pic/DrJkSharma.jpg",
+    image: "",
     description: {
       en: "Expert in naturopathy, yoga therapy, and chronic disease treatment",
       hi: "प्राकृतिक चिकित्सा, योग चिकित्सा और दीर्घकालिक रोगों के विशेषज्ञ",
@@ -78,6 +78,7 @@ export function DoctorsSection() {
                   fill
                   className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
                 
